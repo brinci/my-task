@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { motion } from "framer-motion";
 import emailjs from "@emailjs/browser";
-
 const Contact = () => {
   const form = useRef<HTMLFormElement>(null);
   const [showForm, setShowForm] = useState(true);
@@ -57,11 +56,10 @@ const Contact = () => {
             CONTACT
           </h1>
         </div>
-
         {/* ===== CENTERED FORM CARD ===== */}
         {showForm && (
           <div className="relative z-10 w-full max-w-3xl">
-            <div className="relative overflow-hidden rounded-2xl bg-[#e31c13] px-8 py-10 shadow-2xl shadow-red-900/40 sm:px-12 sm:py-12">
+            <div className="relative overflow-hidden rounded-2xl bg-[#16a34a] px-8 py-10 shadow-2xl shadow-green-900/40 sm:px-12 sm:py-12">
               {/* Cancel Button */}
               <button
                 onClick={handleCancel}
@@ -85,7 +83,6 @@ const Contact = () => {
                   DM ON LINKEDIN
                 </a>
               </div>
-
               {/* Form */}
               <form
                 ref={form}

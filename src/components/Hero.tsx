@@ -1,7 +1,53 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
-
 const Hero = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    // Always start muted
+    video.muted = true;
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+   // Try autoplay (muted)
+    video.play().catch(() => {
+      setIsPlaying(false);
+    });
+
+    return () => {
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
+    };
+  }, []);
+
+  const togglePlay = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+
+    try {
+      // First click → turn sound ON
+      if (isMuted) {
+        video.muted = false;
+        setIsMuted(false);
+        if (video.paused) {
+          await video.play();
+        }
+        return;
+      }
+      if (video.paused) {
+        await video.play();
+      } else {
+        video.pause();
+      }
+    } catch (error) {
+      console.error("Video play error:", error);
+    }
+  };
   const titles = [
     "Full Stack Developer",
     "React.js Developer",
@@ -19,7 +65,6 @@ const Hero = () => {
       const currentTitle = titles[titleIndex];
       const typingSpeed = isDeleting ? 40 : 80;
       const pauseTime = 1800;
-
       const timeout = setTimeout(() => {
         if (!isDeleting && charIndex < currentTitle.length) {
           setText(currentTitle.substring(0, charIndex + 1));
@@ -34,7 +79,6 @@ const Hero = () => {
           setTitleIndex((prev) => (prev + 1) % titles.length);
         }
       }, typingSpeed);
-
       return () => clearTimeout(timeout);
     }, [charIndex, isDeleting, titleIndex]);
 
@@ -54,62 +98,26 @@ const Hero = () => {
     );
   }
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    video.addEventListener("play", onPlay);
-    video.addEventListener("pause", onPause);
-    return () => {
-      video.removeEventListener("play", onPlay);
-      video.removeEventListener("pause", onPause);
-    };
-  }, []);
-
-  const togglePlay = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    const video = videoRef.current;
-    if (!video) return;
-
-    try {
-      if (video.paused) {
-        await video.play();
-      } else {
-        video.pause();
-      }
-    } catch (error) {
-      console.error("Video play error:", error);
-    }
-  };
-
-  const handleUnmute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = false;
-    }
-  };
-
   return (
     <section
       id="home"
-      // className="relative h-screen w-full overflow-hidden bg-[#00703D]"
       className="relative h-screen w-full overflow-hidden"
-      onClick={handleUnmute}
+      // onClick={handleUnmute}
     >
       <video
         ref={videoRef}
-        src="/avatar-video.mp4"
+        src="/avatar-new.mp4"
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        // className="absolute inset-0 h-full w-full object-cover object-[center_30%]"
+        className="absolute inset-0 h-full w-full object-cover object-[center_25%] scale-125 md:scale-110 lg:scale-105"
+        // object-top      → show more of the top
+        // object-[center_20%]  → push video slightly down
+        // object-[center_30%]
       />
       <div className="absolute inset-0 bg-black/20"></div>
-
       {/* ========== MAIN CONTENT ========== */}
       <div className="relative mx-auto flex h-full max-w-[1400px] items-center px-6 md:px-10">
         {/* LEFT – Text */}
@@ -162,23 +170,14 @@ const Hero = () => {
             </a>
           </div>
         </div>
-
         {/* Play / Pause Button */}
         <button
           onClick={togglePlay}
           className="absolute bottom-28 right-10 z-30 hidden h-14 w-14 items-center justify-center rounded-full bg-[#00703D] text-white shadow-xl ring-2 ring-white/20 transition-transform hover:scale-110 active:scale-95 lg:flex"
-          aria-label={isPlaying ? "Pause" : "Play"}
+          aria-label={isMuted || !isPlaying ? "Play" : "Pause"}
         >
-          {isPlaying ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-            </svg>
-          ) : (
+          {isMuted || !isPlaying ? (
+            // Play icon
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -187,10 +186,20 @@ const Hero = () => {
             >
               <path d="M8 5v14l11-7z" />
             </svg>
+          ) : (
+            // Pause icon
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+            </svg>
           )}
         </button>
         <span className="absolute bottom-16 right-8 z-30 hidden text-xs font-medium uppercase tracking-wider text-white/80 lg:block">
-          {isPlaying ? "PAUSE" : "PLAY REEL"}
+          {isMuted ? "PLAY REEL" : isPlaying ? "PAUSE" : "PLAY REEL"}
         </span>
       </div>
     </section>
