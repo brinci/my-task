@@ -106,12 +106,13 @@ const Hero = () => {
     >
       <video
         ref={videoRef}
-        src="/new-vedio.mp4"
+        src="/avatar-new.mp4"
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 h-full w-full object-cover object-top"
+        // className="absolute inset-0 h-full w-full object-cover object-[center_30%]"
+        className="absolute inset-0 h-full w-full object-cover object-[center_25%] scale-125 md:scale-110 lg:scale-105"
         // object-top      → show more of the top
         // object-[center_20%]  → push video slightly down
         // object-[center_30%]
