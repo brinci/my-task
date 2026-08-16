@@ -101,7 +101,7 @@ const Hero = () => {
     >
       <video
         ref={videoRef}
-        src="/avatar-video.mp4"
+        src="/avatar_new.mp4"
         autoPlay
         loop
         muted
